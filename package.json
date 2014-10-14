@@ -10,7 +10,10 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "tape test/*.js"
+    "test": "tape test/*.js",
+    "cover": "istanbul cover tape -- test/*.js",
+    "lint": "eslint index.js lib/*.js",
+    "dryrun": "(TARBALL=`npm pack` ; tar ztvf $TARBALL ; rm -f $TARBALL)"
   },
   "keywords": [
     "hapijs",
