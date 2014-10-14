@@ -1,0 +1,23 @@
+{
+  "name": "good-influxdb",
+  "version": "1.0.0",
+  "description": "An InfluxDB good reporter.",
+  "main": "index.js",
+  "dependencies": {
+    "good-reporter": "^2.0.0",
+    "hoek": "^2.5.1",
+    "wreck": "^5.0.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "tape test/*.js"
+  },
+  "keywords": [
+    "hapijs",
+    "good",
+    "influxdb",
+    "reporter"
+  ],
+  "author": "Erik Toth <totherik@gmail.com>",
+  "license": "ISC"
+}
