@@ -4,6 +4,7 @@ good-influxdb
 A [`good-reporter`](https://github.com/hapijs/good-reporter) for use with [InfluxDB](http://influxdb.com/).
 
 ### GoodInflux
+
 #### new GoodInflux(host, [options])
 - `host` - The host, including protocol, port, and optional credentials, where InfluxDB is running
 - `options` 
@@ -15,7 +16,6 @@ A [`good-reporter`](https://github.com/hapijs/good-reporter) for use with [Influ
 
 
 ### Series
-
 
 ## request
 
