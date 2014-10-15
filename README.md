@@ -8,6 +8,7 @@ corresponds to an InfluxDB series as described below.
 
 
 ## request
+
  time | id | method | status | duration | path | labels | host | pid 
 ------|----|--------|--------|----------|------|--------|------|-----
 
@@ -17,8 +18,6 @@ select * from "request" into request.[host].[pid]
 ```
 
 Once that query is complete, InfluxDB will dynamically create series for each new `host` and `pid` combination recorded.
-
-
 
 
 ## error
