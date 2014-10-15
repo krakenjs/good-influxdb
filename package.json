@@ -4,6 +4,7 @@
   "description": "An InfluxDB good reporter.",
   "main": "index.js",
   "dependencies": {
+    "fastpath": "^0.1.0",
     "good-reporter": "^2.0.0",
     "hoek": "^2.5.1",
     "json-stringify-safe": "^5.0.0",

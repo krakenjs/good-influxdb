@@ -1,45 +1,34 @@
 good-influxdb
 =============
 
-A [`good-reporter`](https://github.com/hapijs/good-reporter) for use with [InfluxDB](http://influxdb.com/).
+A [`good-reporter`](https://github.com/hapijs/good-reporter) for use with [InfluxDB](http://influxdb.com/). Each event type
+corresponds to an InfluxDB series as described below.
 
 ### Series
 
-#### Requests
 
 ##### `request`
-
-`time`, `id`, `method`, `status`, `duration`, `path`, `host`, `pid`
-
-##### `request.{label}`
-
-`time`, `id`, `method`, `status`, `duration`, `path`, `host`, `pid`
+Each request is recorded as a point in a `request` data series with the following columns:
+| `time` | `id` |` method` | `status` | `duration` | `path` | `labels` | `host` | `pid` |
 
 
-#### Errors
 
 ##### `error`
 
 `time`, `url`, `method`, `message`, `stack`, `host`, `pid`
 
 
-#### Ops
-
-##### `ops.os`
+##### `os`
 
 `time`, `cpu1m`, `cpu5m`, `cpu15m`, `totalmem`, `freemem`, `uptime`, `host`, `pid`
 
-##### `ops.process`
+
+##### `process`
 
 `time`, `memory`, `rss`, `heapTotal`, `heapUsed`, `delay`, `uptime`, `host`, `pid`
 
 
-#### Logs
-
 ##### `log`
 
-`time`, `data`, `host`, `pid`
+`time`, `data`, `tags`, `host`, `pid`
 
-##### `log.{tag}`
-
-`time`, `data`, `host`, `pid`
