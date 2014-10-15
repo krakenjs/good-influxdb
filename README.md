@@ -9,7 +9,7 @@ corresponds to an InfluxDB series as described below.
 - `host` - The host, including protocol, port, and optional credentials, where InfluxDB is running
 - `options` 
  - `database` - The name of the database data will be written to. Defaults to `good`.
- - `events` - The [`events` configuration property](https://github.com/hapijs/good-reporter#new-goodreporter-options) are supported by `good-reporter`
+ - `events` - The [`events` configuration property](https://github.com/hapijs/good-reporter#new-goodreporter-options) as supported by `good-reporter`.
  - `threshold` - The number of events to queue before flushing to the database. Defaults to 25.
  - `username` - The username for the InfluxDB user. This value is overridden by host credentials, if available. (Requires `password`.)
  - `password`- The password for the InfluxDB user. This value is overridden by host credentials, if available. (Requires `username`.)
