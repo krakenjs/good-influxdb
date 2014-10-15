@@ -4,8 +4,8 @@ good-influxdb
 A [`good-reporter`](https://github.com/hapijs/good-reporter) for use with [InfluxDB](http://influxdb.com/). Each event type
 corresponds to an InfluxDB series as described below.
 
-### GoodInfluxDB
-#### new GoodHttp (endpoint, [options])
+### GoodInflux
+#### new GoodInflux(host, [options])
 - `host` - The host, including protocol, port, and optional credentials, where InfluxDB is running
 - `options` 
  - `database` - The name of the database data will be written to. Defaults to `good`.
