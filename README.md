@@ -4,6 +4,15 @@ good-influxdb
 A [`good-reporter`](https://github.com/hapijs/good-reporter) for use with [InfluxDB](http://influxdb.com/). Each event type
 corresponds to an InfluxDB series as described below.
 
+### GoodInfluxDB
+#### new GoodHttp (endpoint, [options])
+- `host` - The host, including protocol, port, and optional credentials, where InfluxDB is running
+- `options` 
+ - `threshold` - The number of events to queue before flushing to the database. Defaults to 25.
+ - `username` - The username for the InfluxDB user. This value is overridden by host credentials, if available. (Requires `password`.)
+ - `password`- The password for the InfluxDB user. This value is overridden by host credentials, if available. (Requires `username`.)
+
+
 ### Series
 
 
