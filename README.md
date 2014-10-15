@@ -1,8 +1,7 @@
 good-influxdb
 =============
 
-A [`good-reporter`](https://github.com/hapijs/good-reporter) for use with [InfluxDB](http://influxdb.com/). Each event type
-corresponds to an InfluxDB series as described below.
+A [`good-reporter`](https://github.com/hapijs/good-reporter) for use with [InfluxDB](http://influxdb.com/).
 
 ### GoodInflux
 #### new GoodInflux(host, [options])
