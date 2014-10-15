@@ -8,6 +8,9 @@ corresponds to an InfluxDB series as described below.
 
 
 ## request
+ time | id | method | status | duration | path | labels | host | pid 
+------|----|--------|--------|----------|------|--------|------|-----
+
 Each request is recorded as a point in the `request` data series. The request series can then be broken down into sub-series via [continuous queries](http://influxdb.com/docs/v0.8/api/continuous_queries.html). For example, to get requests per process per host you can run
 ```
 select * from "request" into request.[host].[pid]
@@ -15,9 +18,6 @@ select * from "request" into request.[host].[pid]
 
 Once that query is complete, InfluxDB will dynamically create series for each new `host` and `pid` combination recorded.
 
-
- time | id | method | status | duration | path | labels | host | pid 
-------|----|--------|--------|----------|------|--------|------|-----
 
 
 
