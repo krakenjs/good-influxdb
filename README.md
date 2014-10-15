@@ -17,27 +17,31 @@ Each request is recorded as a point in the `request` data series. The request se
 select * from "request" into request.[host].[pid]
 ```
 
-Once that query is complete, InfluxDB will dynamically create series for each new `host` and `pid combination recorded.
+Once that query is complete, InfluxDB will dynamically create series for each new `host` and `pid` combination recorded.
 
 
 #### error
-Responses that result in 500 are logged as errors with the following columns.
+
 
  time | url | method | message | stack | host | pid 
 ------|-----|--------|---------|-------|------|-----
 
+Responses that result in 500 status code are logged as errors. Each error contains the error message and stacktrace, in addition to the url and HTTP method pertaiing to the failed request.
 
 
 #### os
  time | cpu1m | cpu5m | cpu15m | totalmem | freemem | uptime | host | pid 
 ------|-------|-------|--------|----------|---------|--------|------|-----
 
+OS-level details are also recorded, including the columns above.
+NOTE: Currently there is no deduping of data, therefore if multiple processes are running on the same host, duplicate OS data will be recorded to Influx.
 
 
 #### process
  time | memory | rss | heapTotal | heapUsed | delay | uptime | host | pid 
 ------|--------|-----|-----------|----------|-------|--------|------|-----
 
+process-leve details, including the event loop delay, are recorded into a `process` series.
 
 
 #### log
@@ -45,4 +49,5 @@ Responses that result in 500 are logged as errors with the following columns.
  time | data | tags | host | pid 
 ------|------|------|------|-----
 
+Server logs, including tags are also recorded as points in the `log` series.
 
