@@ -7,14 +7,14 @@ corresponds to an InfluxDB series as described below.
 ### Series
 
 
-##### `request`
+#### request
 Each request is recorded as a point in a `request` data series with the following columns:
 
  time | id | method | status | duration | path | labels | host | pid 
 ------|----|--------|--------|----------|------|--------|------|-----
 
 
-##### `error`
+#### error
 Responses that result in 500 are logged as errors with the following columns.
 
  time | url | method | message | stack | host | pid 
@@ -22,19 +22,19 @@ Responses that result in 500 are logged as errors with the following columns.
 
 
 
-##### `os`
+#### os
  time | cpu1m | cpu5m | cpu15m | totalmem | freemem | uptime | host | pid 
 ------|-------|-------|--------|----------|---------|--------|------|-----
 
 
 
-##### `process`
+#### process
  time | memory | rss | heapTotal | heapUsed | delay | uptime | host | pid 
 ------|--------|-----|-----------|----------|-------|--------|------|-----
 
 
 
-##### `log`
+#### log
 
  time | data | tags | host | pid 
 ------|------|------|------|-----
