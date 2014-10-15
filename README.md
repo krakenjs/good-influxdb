@@ -7,7 +7,7 @@ corresponds to an InfluxDB series as described below.
 ### Series
 
 
-#### request
+## request
 
  time | id | method | status | duration | path | labels | host | pid 
 ------|----|--------|--------|----------|------|--------|------|-----
