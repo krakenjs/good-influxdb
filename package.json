@@ -10,10 +10,14 @@
     "json-stringify-safe": "^5.0.0",
     "wreck": "^5.0.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^0.8.2",
+    "hapi": "^7.0.0",
+    "lab": "^4.6.2"
+  },
   "scripts": {
-    "test": "tape test/*.js",
-    "cover": "istanbul cover tape -- test/*.js",
+    "test": "lab",
+    "cover": "lab -t 100 -r html -o coverage.html",
     "lint": "eslint index.js lib/*.js",
     "dryrun": "(TARBALL=`npm pack` ; tar ztvf $TARBALL ; rm -f $TARBALL)"
   },

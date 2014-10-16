@@ -29,6 +29,7 @@ pids
 logs
 results
 coverage
+coverage.html
 lib-cov
 html-report
 xunit.xml

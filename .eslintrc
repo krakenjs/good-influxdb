@@ -5,6 +5,7 @@
     },
     "rules": {
         "quotes": [1, "single"],
-        "no-underscore-dangle": false
+        "no-underscore-dangle": false,
+        "new-cap": false
     }
 }
