@@ -253,14 +253,15 @@ describe('report', function () {
                 expect(req.payload[0].name).to.equal('foo');
 
                 expect(req.payload[0].columns).to.exist;
-                expect(req.payload[0].columns.length).to.equal(5);
+                expect(req.payload[0].columns.length).to.equal(6);
 
                 expect(req.payload[0].points).to.exist;
                 expect(req.payload[0].points.length).to.equal(1);
 
-                expect(req.payload[0].points[0].length).to.equal(5);
+                expect(req.payload[0].points[0].length).to.equal(6);
                 expect(req.payload[0].points[0][2]).to.equal('bar');
                 expect(req.payload[0].points[0][3]).to.equal('{"foo":"bar"}');
+                expect(req.payload[0].points[0][5]).to.equal('a,b,c');
 
             } else {
 
@@ -305,7 +306,8 @@ describe('report', function () {
                             timestamp: Date.now(),
                             data: 'bar',
                             object: { foo: 'bar' },
-                            when: new Date()
+                            when: new Date(),
+                            labels: ['a', 'b', 'c']
                         });
                     } else {
                         ee.emit('report', 'log', {
