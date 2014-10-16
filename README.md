@@ -61,3 +61,6 @@ process-leve details, including the event loop delay, are recorded into a `proce
 
 Server logs, including tags are also recorded as points in the `log` series.
 
+
+## Custom Events
+Custom events, by default get the `time`, `host`, and `pid` columns. Additionally, any other fields are logged as columns into InfluxDB. Some types are handled specially, however. Primitives are logged as-is, dates are converted to date strings, arrays are logged as comma-separated values, and objects are JSON stringified prior to logging.
