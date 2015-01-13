@@ -349,6 +349,30 @@ describe('report', function () {
                     method: 'GET',
                     path: '/foo',
                     query: '',
+                    responseTime: 100,
+                    statusCode: 200,
+                    pid: 1234
+                },
+                validate: function (payload) {
+                    var idx;
+                    idx = payload[0].columns.indexOf('remoteIp');
+
+                    expect(payload.length).to.equal(1);
+                    expect(payload[0].name).to.equal(this.payload.event);
+                    expect(idx).to.not.equal(-1);
+                    expect(payload[0].points[0][idx]).to.equal('undefined');
+                }
+            },
+            {
+                payload: {
+                    event: 'request',
+                    timestamp: Date.now(),
+                    id: '',
+                    instance: '',
+                    labels: [],
+                    method: 'GET',
+                    path: '/foo',
+                    query: '',
                     source: {
                         remoteAddress: '127.0.0.1'
                     },
