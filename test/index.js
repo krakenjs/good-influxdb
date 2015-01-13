@@ -360,7 +360,7 @@ describe('report', function () {
                     expect(payload.length).to.equal(1);
                     expect(payload[0].name).to.equal(this.payload.event);
                     expect(idx).to.not.equal(-1);
-                    expect(payload[0].points[0][idx]).to.equal('undefined');
+                    expect(payload[0].points[0][idx]).to.be.null();
                 }
             },
             {
