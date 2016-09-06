@@ -8,6 +8,7 @@
     "good-reporter": "^2.0.0",
     "hoek": "^2.5.1",
     "json-stringify-safe": "^5.0.0",
+    "json-to-influxdb-line": "^0.2.0",
     "wreck": "^5.0.1"
   },
   "devDependencies": {
