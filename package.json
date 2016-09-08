@@ -11,9 +11,10 @@
     "wreck": "^5.0.1"
   },
   "devDependencies": {
+    "code": "^1.5.0",
     "eslint": "^0.8.2",
     "hapi": "^7.0.0",
-    "lab": "^4.6.2"
+    "lab": "^5.18.1"
   },
   "scripts": {
     "test": "lab",
