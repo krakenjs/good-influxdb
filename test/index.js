@@ -1,5 +1,6 @@
 'use strict';
 
+var Code = require('code');
 var EventEmitter = require('events').EventEmitter;
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
@@ -8,7 +9,6 @@ var Hapi = require('hapi');
 
 var describe = lab.describe;
 var it = lab.it;
-var expect = Lab.expect;
 var internals = {
     createServer: function (handler) {
         var server = new Hapi.Server('127.0.0.1', 0);
@@ -28,7 +28,7 @@ describe('arguments', function () {
 
     it('throws an error without new', function (done) {
 
-        expect(function () {
+        Code.expect(function () {
             var reporter = GoodInflux('http://www.github.com');
         }).to.throw('GoodInflux must be created with new');
 
@@ -38,7 +38,7 @@ describe('arguments', function () {
 
     it('throws an error when missing host', function (done) {
 
-        expect(function () {
+        Code.expect(function () {
             var reporter = new GoodInflux();
         }).to.throw('host must be a string');
 
@@ -48,7 +48,7 @@ describe('arguments', function () {
 
     it('allows credentials in the host', function (done) {
 
-        expect(function () {
+        Code.expect(function () {
             var reporter = new GoodInflux('http://user:pass@www.github.com');
         }).to.not.throw();
 
@@ -58,11 +58,11 @@ describe('arguments', function () {
 
     it('throws an error on invalid username', function (done) {
 
-        expect(function () {
+        Code.expect(function () {
             var reporter = new GoodInflux('http://www.github.com');
         }).to.throw('username must be a string');
 
-        expect(function () {
+        Code.expect(function () {
             var reporter = new GoodInflux('http://www.github.com', { username: 42 });
         }).to.throw('username must be a string');
 
@@ -72,11 +72,11 @@ describe('arguments', function () {
 
     it('throws an error on invalid password', function (done) {
 
-        expect(function () {
+        Code.expect(function () {
             var reporter = new GoodInflux('http://www.github.com', { username: '' });
         }).to.throw('password must be a string');
 
-        expect(function () {
+        Code.expect(function () {
             var reporter = new GoodInflux('http://www.github.com', { username: '', password: 42 });
         }).to.throw('password must be a string');
 
@@ -94,9 +94,9 @@ describe('credentials', function () {
         reporter = new GoodInflux('http://user:pass@github.com');
         settings = reporter._settings;
 
-        expect(settings.username).to.not.exist;
-        expect(settings.password).to.not.exist;
-        expect(settings.headers.Authorization).to.equal('Basic dXNlcjpwYXNz');
+        Code.expect(settings.username).to.not.exist;
+        Code.expect(settings.password).to.not.exist;
+        Code.expect(settings.headers.Authorization).to.equal('Basic dXNlcjpwYXNz');
 
         done();
     });
@@ -108,9 +108,9 @@ describe('credentials', function () {
         reporter = new GoodInflux('http://user:pass@github.com', { username: 'foo', password: 'bar' });
         settings = reporter._settings;
 
-        expect(settings.username).to.not.exist;
-        expect(settings.password).to.not.exist;
-        expect(settings.headers.Authorization).to.equal('Basic dXNlcjpwYXNz');
+        Code.expect(settings.username).to.not.exist;
+        Code.expect(settings.password).to.not.exist;
+        Code.expect(settings.headers.Authorization).to.equal('Basic dXNlcjpwYXNz');
 
         done();
     });
@@ -122,9 +122,9 @@ describe('credentials', function () {
         reporter = new GoodInflux('http://github.com', { username: 'user', password: 'pass' });
         settings = reporter._settings;
 
-        expect(settings.username).to.not.exist;
-        expect(settings.password).to.not.exist;
-        expect(settings.headers.Authorization).to.equal('Basic dXNlcjpwYXNz');
+        Code.expect(settings.username).to.not.exist;
+        Code.expect(settings.password).to.not.exist;
+        Code.expect(settings.headers.Authorization).to.equal('Basic dXNlcjpwYXNz');
 
         done();
     });
@@ -152,13 +152,13 @@ describe('report', function () {
 
             reply('ok');
 
-            expect(eventName).to.equal('log');
+            Code.expect(eventName).to.equal('log');
 
-            expect(columns).to.exist;
-            expect(columns.length).to.equal(10);
+            Code.expect(columns).to.exist;
+            Code.expect(columns.length).to.equal(10);
 
-            expect(points).to.exist;
-            expect(points.length).to.equal(1);
+            Code.expect(points).to.exist;
+            Code.expect(points.length).to.equal(1);
 
             requests += 1;
 
@@ -179,7 +179,7 @@ describe('report', function () {
             });
 
             reporter.start(ee, function (err) {
-                expect(err).to.not.exist;
+                Code.expect(err).to.not.exist;
 
                 for (var i = 0; i < 10; ++i) {
                     ee.emit('report', 'log', {
@@ -207,14 +207,14 @@ describe('report', function () {
             }
 
             reply('ok');
-            
-            expect(eventName).to.equal('log');
 
-            expect(columns).to.exist;
-            expect(columns.length).to.equal(10);
+            Code.expect(eventName).to.equal('log');
 
-            expect(points).to.exist;
-            expect(points.length).to.equal(1);
+            Code.expect(columns).to.exist;
+            Code.expect(columns.length).to.equal(10);
+
+            Code.expect(points).to.exist;
+            Code.expect(points.length).to.equal(1);
 
             requests += 1;
             if (requests === 10) {
@@ -233,7 +233,7 @@ describe('report', function () {
             });
 
             reporter.start(ee, function (err) {
-                expect(err).to.not.exist;
+                Code.expect(err).to.not.exist;
 
                 for (var i = 0; i < 10; ++i) {
                     ee.emit('report', 'log', {
@@ -265,24 +265,24 @@ describe('report', function () {
 
             if (requests % 2) {
 
-                expect(line.length).to.not.equal(1);
+                Code.expect(line.length).to.not.equal(1);
 
-                expect(columns).to.exist;
-                expect(columns.length).to.not.equal(1);
+                Code.expect(columns).to.exist;
+                Code.expect(columns.length).to.not.equal(1);
 
-                expect(points).to.exist;
+                Code.expect(points).to.exist;
 
-                expect(points.length).to.not.equal(1);
+                Code.expect(points.length).to.not.equal(1);
 
             } else {
 
-                expect(line.length).to.not.equal(1);
+                Code.expect(line.length).to.not.equal(1);
 
-                expect(columns).to.exist;
-                expect(columns.length).to.equal(10);
+                Code.expect(columns).to.exist;
+                Code.expect(columns.length).to.equal(10);
 
-                expect(points).to.exist;
-                expect(points.length).to.equal(1);
+                Code.expect(points).to.exist;
+                Code.expect(points.length).to.equal(1);
             }
 
             requests += 1;
@@ -303,7 +303,7 @@ describe('report', function () {
             });
 
             reporter.start(ee, function (err) {
-                expect(err).to.not.exist;
+                Code.expect(err).to.not.exist;
 
                 for (var i = 0; i < 10; ++i) {
                     if (i % 2) {
@@ -369,9 +369,9 @@ describe('report', function () {
 
                     idx = columns.indexOf('remoteIp');
 
-                    expect(payload.length).to.not.equal(1);
-                    expect(eventName).to.equal(this.payload.event);
-                    expect(idx).to.not.equal(-1);
+                    Code.expect(payload.length).to.not.equal(1);
+                    Code.expect(eventName).to.equal(this.payload.event);
+                    Code.expect(idx).to.not.equal(-1);
                 }
             },
             {
@@ -402,8 +402,8 @@ describe('report', function () {
 
                     idx = columns.indexOf('remoteIp');
 
-                    expect(eventName).to.equal(this.payload.event);
-                    expect(idx).to.not.equal(-1);
+                    Code.expect(eventName).to.equal(this.payload.event);
+                    Code.expect(idx).to.not.equal(-1);
                 }
             },
             {
@@ -436,7 +436,7 @@ describe('report', function () {
                         var line = payload.toString('utf8').split('\n')[0].split(' ');
                     }
 
-                    expect(line.length).to.not.equal(1);
+                    Code.expect(line.length).to.not.equal(1);
                 }
             },
             {
@@ -452,7 +452,7 @@ describe('report', function () {
                         var line = payload.toString('utf8').split('\n')[0].split(' ');
                     }
 
-                    expect(line[0]).to.equal(this.payload.event);
+                    Code.expect(line[0]).to.equal(this.payload.event);
                 }
             },
             {
@@ -473,8 +473,8 @@ describe('report', function () {
                         var timestamp = line[2];
                     }
 
-                    expect(line.length).to.not.equal(1);
-                    expect(eventName).to.equal(this.payload.event);
+                    Code.expect(line.length).to.not.equal(1);
+                    Code.expect(eventName).to.equal(this.payload.event);
                 }
             }
         ];
@@ -486,7 +486,7 @@ describe('report', function () {
 
             event = events[requests];
 
-            expect(req.payload).to.exist;
+            Code.expect(req.payload).to.exist;
             event.validate(req.payload);
 
             requests += 1;
@@ -511,7 +511,7 @@ describe('report', function () {
             reporter.start(ee, function (err) {
                 var request;
 
-                expect(err).to.not.exist;
+                Code.expect(err).to.not.exist;
 
                 for (var i = 0; i < events.length; ++i) {
                     request = events[i];
@@ -542,13 +542,13 @@ describe('stop()', function () {
 
             reply('ok');
 
-            expect(line.length).to.not.equal(1);
+            Code.expect(line.length).to.not.equal(1);
 
-            expect(columns).to.exist;
+            Code.expect(columns).to.exist;
 
-            expect(points).to.exist;
+            Code.expect(points).to.exist;
 
-            expect(points[0].length).to.not.equal(1);
+            Code.expect(points[0].length).to.not.equal(1);
 
             done();
         });
@@ -564,7 +564,7 @@ describe('stop()', function () {
             });
 
             reporter.start(ee, function (err) {
-                expect(err).to.not.exist;
+                Code.expect(err).to.not.exist;
 
                 for (var i = 0; i < 5; ++i) {
                     ee.emit('report', 'log', {
