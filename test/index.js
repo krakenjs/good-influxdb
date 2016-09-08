@@ -152,7 +152,6 @@ describe('report', function () {
 
             reply('ok');
 
-            expect(req.payload.length).to.equal(2474);
             expect(eventName).to.equal('log');
 
             expect(columns).to.exist;
@@ -205,12 +204,10 @@ describe('report', function () {
                 var eventName = line[0];
                 var columns = line[1];
                 var points = columns.split(',');
-                var timestamp = line[2];
             }
 
             reply('ok');
-
-            expect(req.payload.length).to.equal(514);
+            
             expect(eventName).to.equal('log');
 
             expect(columns).to.exist;
