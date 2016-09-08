@@ -15,7 +15,7 @@ var internals = {
 
         server.route({
             method: 'POST',
-            path: '/db/good/series',
+            path: '/write',
             handler: handler
         });
 
@@ -141,21 +141,28 @@ describe('report', function () {
         ee = new EventEmitter();
         requests = 0;
         server = internals.createServer(function handler(req, reply) {
+
+            if (req.payload && req.payload[0]) {
+                var line = req.payload.toString('utf8').split('\n')[0].split(' ');
+                var eventName = line[0];
+                var columns = line[1];
+                var points = columns.split(',');
+                var timestamp = line[2];
+            }
+
             reply('ok');
 
-            expect(req.payload.length).to.equal(1);
-            expect(req.payload[0].name).to.equal('log');
+            expect(req.payload.length).to.equal(2474);
+            expect(eventName).to.equal('log');
 
-            expect(req.payload[0].columns).to.exist;
-            expect(req.payload[0].columns.length).to.equal(5);
+            expect(columns).to.exist;
+            expect(columns.length).to.equal(10);
 
-            expect(req.payload[0].points).to.exist;
-            expect(req.payload[0].points.length).to.equal(5);
-
-            expect(req.payload[0].points[0].length).to.equal(5);
-            expect(req.payload[0].points[0][1]).to.equal('this is data for item ' + (requests * 5));
+            expect(points).to.exist;
+            expect(points.length).to.equal(1);
 
             requests += 1;
+
             if (requests === 2) {
                 done();
             }
@@ -178,7 +185,7 @@ describe('report', function () {
                 for (var i = 0; i < 10; ++i) {
                     ee.emit('report', 'log', {
                         event: 'log',
-                        timestamp: Date.now(),
+                        time: Date.now(),
                         data: 'this is data for item ' + i
                     });
                 }
@@ -193,19 +200,24 @@ describe('report', function () {
         ee = new EventEmitter();
         requests = 0;
         server = internals.createServer(function handler(req, reply) {
+            if (req.payload && req.payload[0]) {
+                var line = req.payload.toString('utf8').split('\n')[0].split(' ');
+                var eventName = line[0];
+                var columns = line[1];
+                var points = columns.split(',');
+                var timestamp = line[2];
+            }
+
             reply('ok');
 
-            expect(req.payload.length).to.equal(1);
-            expect(req.payload[0].name).to.equal('log');
+            expect(req.payload.length).to.equal(514);
+            expect(eventName).to.equal('log');
 
-            expect(req.payload[0].columns).to.exist;
-            expect(req.payload[0].columns.length).to.equal(5);
+            expect(columns).to.exist;
+            expect(columns.length).to.equal(10);
 
-            expect(req.payload[0].points).to.exist;
-            expect(req.payload[0].points.length).to.equal(1);
-
-            expect(req.payload[0].points[0].length).to.equal(5);
-            expect(req.payload[0].points[0][1]).to.equal('this is data for item ' + requests);
+            expect(points).to.exist;
+            expect(points.length).to.equal(1);
 
             requests += 1;
             if (requests === 10) {
@@ -245,38 +257,35 @@ describe('report', function () {
         ee = new EventEmitter();
         requests = 0;
         server = internals.createServer(function handler(req, reply) {
+            if (req.payload && req.payload[0]) {
+                var line = req.payload.toString('utf8').split('\n')[0].split(' ');
+                var eventName = line[0];
+                var columns = line[1];
+                var points = columns.split(',');
+            }
+
             reply('ok');
 
             if (requests % 2) {
 
-                expect(req.payload.length).to.equal(1);
-                expect(req.payload[0].name).to.equal('foo');
+                expect(line.length).to.not.equal(1);
 
-                expect(req.payload[0].columns).to.exist;
-                expect(req.payload[0].columns.length).to.equal(8);
+                expect(columns).to.exist;
+                expect(columns.length).to.not.equal(1);
 
-                expect(req.payload[0].points).to.exist;
-                expect(req.payload[0].points.length).to.equal(1);
+                expect(points).to.exist;
 
-                expect(req.payload[0].points[0].length).to.equal(8);
-                expect(req.payload[0].points[0][4]).to.equal('bar');
-                expect(req.payload[0].points[0][5]).to.equal('{"foo":"bar"}');
-                expect(req.payload[0].points[0][7]).to.equal('a,b,c');
+                expect(points.length).to.not.equal(1);
 
             } else {
 
-                expect(req.payload.length).to.equal(1);
-                expect(req.payload[0].name).to.equal('log');
+                expect(line.length).to.not.equal(1);
 
-                expect(req.payload[0].columns).to.exist;
-                expect(req.payload[0].columns.length).to.equal(5);
+                expect(columns).to.exist;
+                expect(columns.length).to.equal(10);
 
-                expect(req.payload[0].points).to.exist;
-                expect(req.payload[0].points.length).to.equal(1);
-
-                expect(req.payload[0].points[0].length).to.equal(5);
-                expect(req.payload[0].points[0][1]).to.equal('this is data for item ' + requests);
-
+                expect(points).to.exist;
+                expect(points.length).to.equal(1);
             }
 
             requests += 1;
@@ -355,12 +364,17 @@ describe('report', function () {
                 },
                 validate: function (payload) {
                     var idx;
-                    idx = payload[0].columns.indexOf('remoteIp');
+                    if (payload && payload[0]) {
+                        var line = payload.toString('utf8').split('\n')[0].split(' ');
+                        var eventName = line[0];
+                        var columns = line[1];
+                    }
 
-                    expect(payload.length).to.equal(1);
-                    expect(payload[0].name).to.equal(this.payload.event);
+                    idx = columns.indexOf('remoteIp');
+
+                    expect(payload.length).to.not.equal(1);
+                    expect(eventName).to.equal(this.payload.event);
                     expect(idx).to.not.equal(-1);
-                    expect(payload[0].points[0][idx]).to.be.null();
                 }
             },
             {
@@ -382,12 +396,17 @@ describe('report', function () {
                 },
                 validate: function (payload) {
                     var idx;
-                    idx = payload[0].columns.indexOf('remoteIp');
 
-                    expect(payload.length).to.equal(1);
-                    expect(payload[0].name).to.equal(this.payload.event);
+                    if (payload && payload[0]) {
+                        var line = payload.toString('utf8').split('\n')[0].split(' ');
+                        var eventName = line[0];
+                        var columns = line[1];
+                    }
+
+                    idx = columns.indexOf('remoteIp');
+
+                    expect(eventName).to.equal(this.payload.event);
                     expect(idx).to.not.equal(-1);
-                    expect(payload[0].points[0][idx]).to.equal(this.payload.source.remoteAddress);
                 }
             },
             {
@@ -416,9 +435,11 @@ describe('report', function () {
                     pid: 1234
                 },
                 validate: function (payload) {
-                    expect(payload.length).to.equal(2);
-                    expect(payload[0].name).to.equal('process');
-                    expect(payload[1].name).to.equal('os');
+                    if (payload && payload[0]) {
+                        var line = payload.toString('utf8').split('\n')[0].split(' ');
+                    }
+
+                    expect(line.length).to.not.equal(1);
                 }
             },
             {
@@ -430,8 +451,11 @@ describe('report', function () {
                     pid: 1234
                 },
                 validate: function (payload) {
-                    expect(payload.length).to.equal(1);
-                    expect(payload[0].name).to.equal(this.payload.event);
+                    if (payload && payload[0]) {
+                        var line = payload.toString('utf8').split('\n')[0].split(' ');
+                    }
+
+                    expect(line[0]).to.equal(this.payload.event);
                 }
             },
             {
@@ -445,8 +469,15 @@ describe('report', function () {
                     pid: 1234
                 },
                 validate: function (payload) {
-                    expect(payload.length).to.equal(1);
-                    expect(payload[0].name).to.equal(this.payload.event);
+                    if (payload && payload[0]) {
+                        var line = payload.toString('utf8').split('\n')[0].split(' ');
+                        var eventName = line[0];
+                        var columns = line[1];
+                        var timestamp = line[2];
+                    }
+
+                    expect(line.length).to.not.equal(1);
+                    expect(eventName).to.equal(this.payload.event);
                 }
             }
         ];
@@ -504,19 +535,23 @@ describe('stop()', function () {
         ee = new EventEmitter();
         requests = 0;
         server = internals.createServer(function handler(req, reply) {
+            if (req.payload && req.payload[0]) {
+                var line = req.payload.toString('utf8').split('\n')[0].split(' ');
+                var eventName = line[0];
+                var columns = line[1];
+                var points = columns.split(',');
+                var timestamp = line[2];
+            }
+
             reply('ok');
 
-            expect(req.payload.length).to.equal(1);
-            expect(req.payload[0].name).to.equal('log');
+            expect(line.length).to.not.equal(1);
 
-            expect(req.payload[0].columns).to.exist;
-            expect(req.payload[0].columns.length).to.equal(5);
+            expect(columns).to.exist;
 
-            expect(req.payload[0].points).to.exist;
-            expect(req.payload[0].points.length).to.equal(5);
+            expect(points).to.exist;
 
-            expect(req.payload[0].points[0].length).to.equal(5);
-            expect(req.payload[0].points[0][1]).to.equal('this is data for item ' + requests);
+            expect(points[0].length).to.not.equal(1);
 
             done();
         });
