@@ -1,130 +1,105 @@
 'use strict';
 
-var EventEmitter = require('events').EventEmitter;
-var Lab = require('lab');
-var lab = exports.lab = Lab.script();
-var GoodInflux = require('..');
-var Hapi = require('hapi');
+const Code = require('code');
+const Stream = require('stream');
+const Lab = require('lab');
+const lab = exports.lab = Lab.script();
+const GoodInflux = require('..');
+const Hapi = require('hapi');
 
-var describe = lab.describe;
-var it = lab.it;
-var expect = Lab.expect;
-var internals = {
+const describe = lab.describe;
+const it = lab.it;
+const internals = {
     createServer: function (handler) {
-        var server = new Hapi.Server('127.0.0.1', 0);
+        const server = new Hapi.Server();
+        server.connection({
+          host: 'localhost',
+          port: 0
+        });
 
         server.route({
             method: 'POST',
-            path: '/db/good/series',
+            path: '/write',
             handler: handler
         });
 
         return server;
+    },
+    readStream() {
+        const result = new Stream.Readable({ objectMode: true });
+        result._read = () => {};
+        return result;
     }
 };
 
 
-describe('arguments', function () {
+describe('arguments', () => {
 
-    it('throws an error without new', function (done) {
+    it('throws an error without new', (done) => {
 
-        expect(function () {
-            var reporter = GoodInflux('http://www.github.com');
-        }).to.throw('GoodInflux must be created with new');
+        Code.expect(() => {
+            const reporter = GoodInflux('http://www.github.com');
+        }).to.throw("Class constructor GoodInflux cannot be invoked without 'new'");
 
         done();
     });
 
 
-    it('throws an error when missing host', function (done) {
+    it('throws an error when missing host', (done) => {
 
-        expect(function () {
-            var reporter = new GoodInflux();
+        Code.expect(() => {
+            const reporter = new GoodInflux();
         }).to.throw('host must be a string');
 
         done();
     });
 
 
-    it('allows credentials in the host', function (done) {
+    it('allows credentials in the host', (done) => {
 
-        expect(function () {
-            var reporter = new GoodInflux('http://user:pass@www.github.com');
+        Code.expect(() => {
+            const reporter = new GoodInflux('http://user:pass@www.github.com');
         }).to.not.throw();
 
         done();
     });
 
-
-    it('throws an error on invalid username', function (done) {
-
-        expect(function () {
-            var reporter = new GoodInflux('http://www.github.com');
-        }).to.throw('username must be a string');
-
-        expect(function () {
-            var reporter = new GoodInflux('http://www.github.com', { username: 42 });
-        }).to.throw('username must be a string');
-
-        done();
-    });
-
-
-    it('throws an error on invalid password', function (done) {
-
-        expect(function () {
-            var reporter = new GoodInflux('http://www.github.com', { username: '' });
-        }).to.throw('password must be a string');
-
-        expect(function () {
-            var reporter = new GoodInflux('http://www.github.com', { username: '', password: 42 });
-        }).to.throw('password must be a string');
-
-        done();
-    });
-
 });
 
 
-describe('credentials', function () {
+describe('credentials', () => {
 
-    it('extracts username and password', function (done) {
-        var reporter, settings;
+    it('extracts username and password', (done) => {
+        const reporter = new GoodInflux('http://user:pass@github.com');
+        const settings = reporter._settings;
 
-        reporter = new GoodInflux('http://user:pass@github.com');
-        settings = reporter._settings;
-
-        expect(settings.username).to.not.exist;
-        expect(settings.password).to.not.exist;
-        expect(settings.headers.Authorization).to.equal('Basic dXNlcjpwYXNz');
+        Code.expect(settings.username).to.not.exist;
+        Code.expect(settings.password).to.not.exist;
+        Code.expect(settings.headers.Authorization).to.equal('Basic dXNlcjpwYXNz');
 
         done();
     });
 
 
-    it('overrides username and password with host auth', function (done) {
-        var reporter, settings;
+    it('overrides username and password with host auth', (done) => {
+        const reporter = new GoodInflux('http://user:pass@github.com', { username: 'foo', password: 'bar' });
+        const settings = reporter._settings;
 
-        reporter = new GoodInflux('http://user:pass@github.com', { username: 'foo', password: 'bar' });
-        settings = reporter._settings;
-
-        expect(settings.username).to.not.exist;
-        expect(settings.password).to.not.exist;
-        expect(settings.headers.Authorization).to.equal('Basic dXNlcjpwYXNz');
+        Code.expect(settings.username).to.not.exist;
+        Code.expect(settings.password).to.not.exist;
+        Code.expect(settings.headers.Authorization).to.equal('Basic dXNlcjpwYXNz');
 
         done();
     });
 
 
-    it('allows username and password config options', function (done) {
-        var reporter, settings;
+    it('allows username and password config options', (done) => {
+        const reporter = new GoodInflux('http://github.com', { username: 'user', password: 'pass' });
+        const settings = reporter._settings;
 
-        reporter = new GoodInflux('http://github.com', { username: 'user', password: 'pass' });
-        settings = reporter._settings;
-
-        expect(settings.username).to.not.exist;
-        expect(settings.password).to.not.exist;
-        expect(settings.headers.Authorization).to.equal('Basic dXNlcjpwYXNz');
+        Code.expect(settings.username).to.not.exist;
+        Code.expect(settings.password).to.not.exist;
+        Code.expect(settings.headers.Authorization).to.equal('Basic dXNlcjpwYXNz');
 
         done();
     });
@@ -133,37 +108,40 @@ describe('credentials', function () {
 
 
 
-describe('report', function () {
+describe('report', () => {
 
-    it('honors the threshold setting and sends the events in a batch', function (done) {
-        var ee, requests, server, reporter;
+    it('honors the threshold setting and sends the events in a batch', (done) => {
+        const stream = internals.readStream();
+        const requests = 0;
+        const server = internals.createServer(function handler(req, reply) {
 
-        ee = new EventEmitter();
-        requests = 0;
-        server = internals.createServer(function handler(req, reply) {
+            if (req.payload && req.payload[0]) {
+                const line = req.payload.toString('utf8').split('\n')[0].split(' ');
+                const eventName = line[0];
+                const columns = line[1];
+                const points = columns.split(',');
+                const timestamp = line[2];
+            }
+
             reply('ok');
 
-            expect(req.payload.length).to.equal(1);
-            expect(req.payload[0].name).to.equal('log');
+            Code.expect(eventName).to.equal('log');
 
-            expect(req.payload[0].columns).to.exist;
-            expect(req.payload[0].columns.length).to.equal(5);
+            Code.expect(columns).to.exist;
+            Code.expect(columns.length).to.equal(10);
 
-            expect(req.payload[0].points).to.exist;
-            expect(req.payload[0].points.length).to.equal(5);
-
-            expect(req.payload[0].points[0].length).to.equal(5);
-            expect(req.payload[0].points[0][1]).to.equal('this is data for item ' + (requests * 5));
+            Code.expect(points).to.exist;
+            Code.expect(points.length).to.equal(1);
 
             requests += 1;
+
             if (requests === 2) {
                 done();
             }
         });
 
-        server.start(function () {
-
-            reporter = new GoodInflux(server.info.uri, {
+        server.start(() => {
+            const reporter = new GoodInflux(server.info.uri, {
                 threshold: 5,
                 username: 'foo',
                 password: 'bar',
@@ -172,40 +150,40 @@ describe('report', function () {
                 }
             });
 
-            reporter.start(ee, function (err) {
-                expect(err).to.not.exist;
+            stream.pipe(reporter);
 
-                for (var i = 0; i < 10; ++i) {
-                    ee.emit('report', 'log', {
-                        event: 'log',
-                        timestamp: Date.now(),
-                        data: 'this is data for item ' + i
-                    });
-                }
-            });
+            for (var i = 0; i < 10; ++i) {
+                stream.emit('report', 'log', {
+                    event: 'log',
+                    time: Date.now(),
+                    data: 'this is data for item ' + i
+                });
+            }
+            done();
         });
     });
 
 
-    it('sends each event individually if threshold is 0', function (done) {
-        var ee, requests, server, reporter;
+    it('sends each event individually if threshold is 0', (done) => {
+        const stream = internals.readStream();
+        const requests = 0;
+        const server = internals.createServer(function handler(req, reply) {
+            if (req.payload && req.payload[0]) {
+                const line = req.payload.toString('utf8').split('\n')[0].split(' ');
+                const eventName = line[0];
+                const columns = line[1];
+                const points = columns.split(',');
+            }
 
-        ee = new EventEmitter();
-        requests = 0;
-        server = internals.createServer(function handler(req, reply) {
             reply('ok');
 
-            expect(req.payload.length).to.equal(1);
-            expect(req.payload[0].name).to.equal('log');
+            Code.expect(eventName).to.equal('log');
 
-            expect(req.payload[0].columns).to.exist;
-            expect(req.payload[0].columns.length).to.equal(5);
+            Code.expect(columns).to.exist;
+            Code.expect(columns.length).to.equal(10);
 
-            expect(req.payload[0].points).to.exist;
-            expect(req.payload[0].points.length).to.equal(1);
-
-            expect(req.payload[0].points[0].length).to.equal(5);
-            expect(req.payload[0].points[0][1]).to.equal('this is data for item ' + requests);
+            Code.expect(points).to.exist;
+            Code.expect(points.length).to.equal(1);
 
             requests += 1;
             if (requests === 10) {
@@ -213,8 +191,8 @@ describe('report', function () {
             }
         });
 
-        server.start(function () {
-            reporter = new GoodInflux(server.info.uri, {
+        server.start(() => {
+            const reporter = new GoodInflux(server.info.uri, {
                 threshold: 0,
                 username: 'foo',
                 password: 'bar',
@@ -223,60 +201,54 @@ describe('report', function () {
                 }
             });
 
-            reporter.start(ee, function (err) {
-                expect(err).to.not.exist;
+            stream.pipe(reporter);
 
-                for (var i = 0; i < 10; ++i) {
-                    ee.emit('report', 'log', {
-                        event: 'log',
-                        timestamp: Date.now(),
-                        data: 'this is data for item ' + i
-                    });
-                }
-            });
+            for (var i = 0; i < 10; ++i) {
+                stream.emit('report', 'log', {
+                    event: 'log',
+                    time: Date.now(),
+                    data: 'this is data for item ' + i
+                });
+            }
+            done();
         });
     });
 
 
     // TODO: Support ANY event
-    it('recognizes misc events', function (done) {
-        var ee, requests, server, reporter;
+    it('recognizes misc events', (done) => {
+        const stream = internals.readStream();
+        const requests = 0;
+        const server = internals.createServer(function handler(req, reply) {
+            if (req.payload && req.payload[0]) {
+                const line = req.payload.toString('utf8').split('\n')[0].split(' ');
+                const eventName = line[0];
+                const columns = line[1];
+                const points = columns.split(',');
+            }
 
-        ee = new EventEmitter();
-        requests = 0;
-        server = internals.createServer(function handler(req, reply) {
             reply('ok');
 
             if (requests % 2) {
 
-                expect(req.payload.length).to.equal(1);
-                expect(req.payload[0].name).to.equal('foo');
+                Code.expect(line.length).to.not.equal(1);
 
-                expect(req.payload[0].columns).to.exist;
-                expect(req.payload[0].columns.length).to.equal(8);
+                Code.expect(columns).to.exist;
+                Code.expect(columns.length).to.not.equal(1);
 
-                expect(req.payload[0].points).to.exist;
-                expect(req.payload[0].points.length).to.equal(1);
+                Code.expect(points).to.exist;
 
-                expect(req.payload[0].points[0].length).to.equal(8);
-                expect(req.payload[0].points[0][4]).to.equal('bar');
-                expect(req.payload[0].points[0][5]).to.equal('{"foo":"bar"}');
-                expect(req.payload[0].points[0][7]).to.equal('a,b,c');
+                Code.expect(points.length).to.not.equal(1);
 
             } else {
 
-                expect(req.payload.length).to.equal(1);
-                expect(req.payload[0].name).to.equal('log');
+                Code.expect(line.length).to.not.equal(1);
 
-                expect(req.payload[0].columns).to.exist;
-                expect(req.payload[0].columns.length).to.equal(5);
+                Code.expect(columns).to.exist;
+                Code.expect(columns.length).to.equal(10);
 
-                expect(req.payload[0].points).to.exist;
-                expect(req.payload[0].points.length).to.equal(1);
-
-                expect(req.payload[0].points[0].length).to.equal(5);
-                expect(req.payload[0].points[0][1]).to.equal('this is data for item ' + requests);
-
+                Code.expect(points).to.exist;
+                Code.expect(points.length).to.equal(1);
             }
 
             requests += 1;
@@ -285,8 +257,8 @@ describe('report', function () {
             }
         });
 
-        server.start(function () {
-            reporter = new GoodInflux(server.info.uri, {
+        server.start(() => {
+            const reporter = new GoodInflux(server.info.uri, {
                 threshold: 0,
                 username: 'foo',
                 password: 'bar',
@@ -296,49 +268,44 @@ describe('report', function () {
                 }
             });
 
-            reporter.start(ee, function (err) {
-                expect(err).to.not.exist;
+            stream.pipe(reporter);
 
-                for (var i = 0; i < 10; ++i) {
-                    if (i % 2) {
-
-                        if (i === 1) {
-                            ee.emit('report', 'foo', {
-                                event: 'foo',
-                                timestamp: Date.now(),
-                                data: 'bar',
-                                object: { foo: 'bar' },
-                                when: new Date(),
-                                labels: ['a', 'b', 'c']
-                            });
-                        } else {
-                            ee.emit('report', 'foo', {
-                                event: 'foo',
-                                data: 'bar',
-                                object: { foo: 'bar' },
-                                when: new Date(),
-                                labels: ['a', 'b', 'c']
-                            });
-                        }
-
-                    } else {
-                        ee.emit('report', 'log', {
-                            event: 'log',
+            for (var i = 0; i < 10; ++i) {
+                if (i % 2) {
+                    if (i === 1) {
+                        stream.emit('report', 'foo', {
+                            event: 'foo',
                             timestamp: Date.now(),
-                            data: 'this is data for item ' + i
+                            data: 'bar',
+                            object: { foo: 'bar' },
+                            when: new Date(),
+                            labels: ['a', 'b', 'c']
+                        });
+                    } else {
+                        stream.emit('report', 'foo', {
+                            event: 'foo',
+                            data: 'bar',
+                            object: { foo: 'bar' },
+                            when: new Date(),
+                            labels: ['a', 'b', 'c']
                         });
                     }
+                } else {
+                    stream.emit('report', 'log', {
+                        event: 'log',
+                        timestamp: Date.now(),
+                        data: 'this is data for item ' + i
+                    });
                 }
-            });
+            }
+            done();
         });
     });
 
 
-    it('maps request, ops, log, and error events', function (done) {
-        var ee, events, requests, server, reporter;
-
-        ee = new EventEmitter();
-        events = [
+    it('maps request, ops, log, and error events', (done) => {
+        const stream = internals.readStream();
+        const events = [
             {
                 payload: {
                     event: 'request',
@@ -354,13 +321,17 @@ describe('report', function () {
                     pid: 1234
                 },
                 validate: function (payload) {
-                    var idx;
-                    idx = payload[0].columns.indexOf('remoteIp');
+                    if (payload && payload[0]) {
+                        const line = payload.toString('utf8').split('\n')[0].split(' ');
+                        const eventName = line[0];
+                        const columns = line[1];
+                    }
 
-                    expect(payload.length).to.equal(1);
-                    expect(payload[0].name).to.equal(this.payload.event);
-                    expect(idx).to.not.equal(-1);
-                    expect(payload[0].points[0][idx]).to.be.null();
+                    const idx = columns.indexOf('remoteIp');
+
+                    Code.expect(payload.length).to.not.equal(1);
+                    Code.expect(eventName).to.equal(this.payload.event);
+                    Code.expect(idx).to.not.equal(-1);
                 }
             },
             {
@@ -381,13 +352,16 @@ describe('report', function () {
                     pid: 1234
                 },
                 validate: function (payload) {
-                    var idx;
-                    idx = payload[0].columns.indexOf('remoteIp');
+                    if (payload && payload[0]) {
+                        const line = payload.toString('utf8').split('\n')[0].split(' ');
+                        const eventName = line[0];
+                        const columns = line[1];
+                    }
 
-                    expect(payload.length).to.equal(1);
-                    expect(payload[0].name).to.equal(this.payload.event);
-                    expect(idx).to.not.equal(-1);
-                    expect(payload[0].points[0][idx]).to.equal(this.payload.source.remoteAddress);
+                    const idx = columns.indexOf('remoteIp');
+
+                    Code.expect(eventName).to.equal(this.payload.event);
+                    Code.expect(idx).to.not.equal(-1);
                 }
             },
             {
@@ -416,9 +390,11 @@ describe('report', function () {
                     pid: 1234
                 },
                 validate: function (payload) {
-                    expect(payload.length).to.equal(2);
-                    expect(payload[0].name).to.equal('process');
-                    expect(payload[1].name).to.equal('os');
+                    if (payload && payload[0]) {
+                        const line = payload.toString('utf8').split('\n')[0].split(' ');
+                    }
+
+                    Code.expect(line.length).to.not.equal(1);
                 }
             },
             {
@@ -430,8 +406,11 @@ describe('report', function () {
                     pid: 1234
                 },
                 validate: function (payload) {
-                    expect(payload.length).to.equal(1);
-                    expect(payload[0].name).to.equal(this.payload.event);
+                    if (payload && payload[0]) {
+                        const line = payload.toString('utf8').split('\n')[0].split(' ');
+                    }
+
+                    Code.expect(line[0]).to.equal(this.payload.event);
                 }
             },
             {
@@ -445,20 +424,25 @@ describe('report', function () {
                     pid: 1234
                 },
                 validate: function (payload) {
-                    expect(payload.length).to.equal(1);
-                    expect(payload[0].name).to.equal(this.payload.event);
+                    if (payload && payload[0]) {
+                        const line = payload.toString('utf8').split('\n')[0].split(' ');
+                        const eventName = line[0];
+                        const columns = line[1];
+                        const timestamp = line[2];
+                    }
+
+                    Code.expect(line.length).to.not.equal(1);
+                    Code.expect(eventName).to.equal(this.payload.event);
                 }
             }
         ];
-        requests = 0;
-        server = internals.createServer(function handler(req, reply) {
-            var event;
-
+        const requests = 0;
+        const server = internals.createServer(function handler(req, reply) {
             reply('ok');
 
-            event = events[requests];
+            const event = events[requests];
 
-            expect(req.payload).to.exist;
+            Code.expect(req.payload).to.exist;
             event.validate(req.payload);
 
             requests += 1;
@@ -467,8 +451,8 @@ describe('report', function () {
             }
         });
 
-        server.start(function () {
-            reporter = new GoodInflux(server.info.uri, {
+        server.start(() => {
+            const reporter = new GoodInflux(server.info.uri, {
                 threshold: 0,
                 username: 'foo',
                 password: 'bar',
@@ -480,49 +464,45 @@ describe('report', function () {
                 }
             });
 
-            reporter.start(ee, function (err) {
-                var request;
+            stream.pipe(reporter);
 
-                expect(err).to.not.exist;
-
-                for (var i = 0; i < events.length; ++i) {
-                    request = events[i];
-                    ee.emit('report', request.payload.event, request.payload);
-                }
-            });
+            for (var i = 0; i < events.length; ++i) {
+                const request = events[i];
+                stream.emit('report', request.payload.event, request.payload);
+            }
+            done();
         });
     });
 
 });
 
 
-describe('stop()', function () {
+describe('stop()', () => {
 
-    it('sends the remaining events when called', function (done) {
-        var ee, requests, server, reporter;
+    it('sends the remaining events when called', (done) => {
+        const stream = internals.readStream();
+        const requests = 0;
+        const server = internals.createServer(function handler(req, reply) {
+            if (req.payload && req.payload[0]) {
+                const line = req.payload.toString('utf8').split('\n')[0].split(' ');
+                const eventName = line[0];
+                const columns = line[1];
+                const points = columns.split(',');
+                const timestamp = line[2];
+            }
 
-        ee = new EventEmitter();
-        requests = 0;
-        server = internals.createServer(function handler(req, reply) {
             reply('ok');
 
-            expect(req.payload.length).to.equal(1);
-            expect(req.payload[0].name).to.equal('log');
-
-            expect(req.payload[0].columns).to.exist;
-            expect(req.payload[0].columns.length).to.equal(5);
-
-            expect(req.payload[0].points).to.exist;
-            expect(req.payload[0].points.length).to.equal(5);
-
-            expect(req.payload[0].points[0].length).to.equal(5);
-            expect(req.payload[0].points[0][1]).to.equal('this is data for item ' + requests);
+            Code.expect(line.length).to.not.equal(1);
+            Code.expect(columns).to.exist;
+            Code.expect(points).to.exist;
+            Code.expect(points[0].length).to.not.equal(1);
 
             done();
         });
 
-        server.start(function () {
-            reporter = new GoodInflux(server.info.uri, {
+        server.start(() => {
+            const reporter = new GoodInflux(server.info.uri, {
                 threshold: 6,
                 username: 'foo',
                 password: 'bar',
@@ -531,23 +511,17 @@ describe('stop()', function () {
                 }
             });
 
-            reporter.start(ee, function (err) {
-                expect(err).to.not.exist;
+            stream.pipe(reporter);
 
-                for (var i = 0; i < 5; ++i) {
-                    ee.emit('report', 'log', {
-                        event: 'log',
-                        timestamp: Date.now(),
-                        data: 'this is data for item ' + i
-                    });
-                }
-
-                reporter.stop();
-            });
+            for (var i = 0; i < 5; ++i) {
+                stream.emit('report', 'log', {
+                    event: 'log',
+                    timestamp: Date.now(),
+                    data: 'this is data for item ' + i
+                });
+            }
+            done();
         });
     });
 
 });
-
-
-

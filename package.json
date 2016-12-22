@@ -4,16 +4,16 @@
   "description": "An InfluxDB good reporter.",
   "main": "index.js",
   "dependencies": {
-    "fastpath": "^0.1.0",
-    "good-reporter": "^2.0.0",
-    "hoek": "^2.5.1",
-    "json-stringify-safe": "^5.0.0",
-    "wreck": "^5.0.1"
+    "fastpath": "^2.1.0",
+    "hoek": "^4.1.0",
+    "json-stringify-safe": "^5.0.1",
+    "wreck": "^10.0.0"
   },
   "devDependencies": {
-    "eslint": "^0.8.2",
-    "hapi": "^7.0.0",
-    "lab": "^4.6.2"
+    "code": "^4.0.0",
+    "eslint": "^3.12.2",
+    "hapi": "^16.0.2",
+    "lab": "^11.2.1"
   },
   "scripts": {
     "test": "lab",
@@ -21,6 +21,9 @@
     "lint": "eslint index.js lib/*.js",
     "dryrun": "(TARBALL=`npm pack` ; tar ztvf $TARBALL ; rm -f $TARBALL)"
   },
+  "contributors": [
+    "Gabriel J. Csapo <gabecsapo@gmail.com>"
+  ],
   "keywords": [
     "hapijs",
     "good",
