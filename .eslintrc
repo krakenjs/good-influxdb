@@ -1,11 +1,14 @@
 {
+    "extends": "eslint:recommended",
     "env": {
         "browser": false,
-        "node": true
+        "node": true,
+        "es6": true
     },
     "rules": {
         "quotes": [1, "single"],
-        "no-underscore-dangle": false,
-        "new-cap": false
+        "no-underscore-dangle": 0,
+        "new-cap": 0,
+        "dot-notation": "error"
     }
 }
