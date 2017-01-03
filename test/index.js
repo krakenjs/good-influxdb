@@ -37,10 +37,10 @@ describe('arguments', () => {
 
     it('throws an error without new', (done) => {
         var error = "Class constructor GoodInflux cannot be invoked without 'new'";
-        if(process.versions['node'].substring(0, 1) == '4') {
+        if(process.versions['node'].substring(0, 1) == '4' || process.versions['node'].substring(0, 1) == '5') {
           error = "Class constructors cannot be invoked without 'new'";
         }
-        
+
         Code.expect(() => {
             const reporter = GoodInflux('http://www.github.com');
         }).to.throw(error);
