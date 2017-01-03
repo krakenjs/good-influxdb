@@ -17,7 +17,7 @@
   },
   "scripts": {
     "test": "lab",
-    "cover": "lab -t 100 -r html -o coverage.html",
+    "cover": "lab --coverage",
     "lint": "eslint index.js lib/*.js",
     "dryrun": "(TARBALL=`npm pack` ; tar ztvf $TARBALL ; rm -f $TARBALL)"
   },
