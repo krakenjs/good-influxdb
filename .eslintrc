@@ -8,6 +8,7 @@
     "rules": {
         "quotes": [1, "single"],
         "no-underscore-dangle": 0,
-        "new-cap": 0
+        "new-cap": 0,
+        "dot-notation": "error"
     }
 }
