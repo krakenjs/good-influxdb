@@ -580,8 +580,6 @@ describe('report', () => {
                 precision: 'n' // nanoseconds
             });
 
-            console.log(`Started ...`);
-
             stream.pipe(reporter);
 
             for (var i = 0; i < events.length; ++i) {
