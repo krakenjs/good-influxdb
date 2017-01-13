@@ -14,6 +14,13 @@ A [`good-reporter`](https://github.com/hapijs/good-reporter) for use with [Influ
  - `threshold` - The number of events to queue before flushing to the database. Defaults to 25.
  - `username` - The username for the InfluxDB user. This value is overridden by host credentials, if available. (Requires `password`.)
  - `password`- The password for the InfluxDB user. This value is overridden by host credentials, if available. (Requires `username`.)
+ - `precision` - The precision specified for InfluxDB timestamp. Defaults to `ms` (milliseconds).
+    - `n` - nanoseconds
+    - `u` - microseconds
+    - `ms` - milliseconds (default)
+    - `s` - seconds
+    - `m` - minutes
+    - `h` - hours
 
 
 ### Series
