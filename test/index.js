@@ -36,8 +36,8 @@ const internals = {
 describe('arguments', () => {
 
     it('throws an error without new', (done) => {
-        var error = "Class constructor GoodInflux cannot be invoked without 'new'";
-        if(process.versions['node'].substring(0, 1) == '4' || process.versions['node'].substring(0, 1) == '5') {
+        let error = "Class constructor GoodInflux cannot be invoked without 'new'";
+        if (process.versions['node'].substring(0, 1) == '4' || process.versions['node'].substring(0, 1) == '5') {
           error = "Class constructors cannot be invoked without 'new'";
         }
 
@@ -67,6 +67,37 @@ describe('arguments', () => {
 
         done();
     });
+
+});
+
+describe('settings', () => {
+
+  it('defaults to ms precision', (done) => {
+      const reporter = new GoodInflux('localhost');
+      const settings = reporter._settings;
+
+      Code.expect(settings.precision).to.equal('ms');
+
+      done();
+  });
+
+  it('sets to nanosecond precision', (done) => {
+      const reporter = new GoodInflux('localhost', { precision: 'n' });
+      const settings = reporter._settings;
+
+      Code.expect(settings.precision).to.equal('n');
+
+      done();
+  });
+
+  it('sets to hours precision', (done) => {
+      const reporter = new GoodInflux('localhost', { precision: 'h' });
+      const settings = reporter._settings;
+
+      Code.expect(settings.precision).to.equal('h');
+
+      done();
+  });
 
 });
 
@@ -156,7 +187,8 @@ describe('report', () => {
 
             stream.pipe(reporter);
 
-            for (var i = 0; i < 10; ++i) {
+            for (let i = 0; i < 10; ++i) {
+
                 stream.emit('report', 'log', {
                     event: 'log',
                     time: Date.now(),
