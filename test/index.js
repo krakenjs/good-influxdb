@@ -36,8 +36,8 @@ const internals = {
 describe('arguments', () => {
 
     it('throws an error without new', (done) => {
-        var error = "Class constructor GoodInflux cannot be invoked without 'new'";
-        if(process.versions['node'].substring(0, 1) == '4' || process.versions['node'].substring(0, 1) == '5') {
+        let error = "Class constructor GoodInflux cannot be invoked without 'new'";
+        if (process.versions['node'].substring(0, 1) == '4' || process.versions['node'].substring(0, 1) == '5') {
           error = "Class constructors cannot be invoked without 'new'";
         }
 
@@ -67,6 +67,37 @@ describe('arguments', () => {
 
         done();
     });
+
+});
+
+describe('settings', () => {
+
+  it('defaults to ms precision', (done) => {
+      const reporter = new GoodInflux('localhost');
+      const settings = reporter._settings;
+
+      Code.expect(settings.precision).to.equal('ms');
+
+      done();
+  });
+
+  it('sets to nanosecond precision', (done) => {
+      const reporter = new GoodInflux('localhost', { precision: 'n' });
+      const settings = reporter._settings;
+
+      Code.expect(settings.precision).to.equal('n');
+
+      done();
+  });
+
+  it('sets to hours precision', (done) => {
+      const reporter = new GoodInflux('localhost', { precision: 'h' });
+      const settings = reporter._settings;
+
+      Code.expect(settings.precision).to.equal('h');
+
+      done();
+  });
 
 });
 
@@ -156,7 +187,8 @@ describe('report', () => {
 
             stream.pipe(reporter);
 
-            for (var i = 0; i < 10; ++i) {
+            for (let i = 0; i < 10; ++i) {
+
                 stream.emit('report', 'log', {
                     event: 'log',
                     time: Date.now(),
@@ -466,118 +498,6 @@ describe('report', () => {
                     log: '*',
                     error: '*'
                 }
-            });
-
-            stream.pipe(reporter);
-
-            for (var i = 0; i < events.length; ++i) {
-                const request = events[i];
-                stream.emit('report', request.payload.event, request.payload);
-            }
-            done();
-        });
-    });
-
-    it('maps events and sets precision to nanoseconds', (done) => {
-        const stream = internals.readStream();
-        const events = [
-            {
-                payload: {
-                    event: 'request',
-                    timestamp: Date.now(),
-                    id: '',
-                    instance: '',
-                    labels: [],
-                    method: 'GET',
-                    path: '/foo',
-                    query: '',
-                    responseTime: 100,
-                    statusCode: 200,
-                    pid: 1234
-                },
-                validate: function (payload) {
-                    let line, eventName, columns;
-                    if (payload && payload[0]) {
-                        line = payload.toString('utf8').split('\n')[0].split(' ');
-                        eventName = line[0];
-                        columns = line[1];
-                    }
-
-                    const idx = columns.indexOf('remoteIp');
-
-                    Code.expect(payload.length).to.not.equal(1);
-                    Code.expect(eventName).to.equal(this.payload.event);
-                    Code.expect(idx).to.not.equal(-1);
-                }
-            },
-            {
-                payload: {
-                    event: 'log',
-                    timestamp: Date.now(),
-                    tags: [],
-                    data: 'Hello, world.',
-                    pid: 1234
-                },
-                validate: function (payload) {
-                    let line;
-                    if (payload && payload[0]) {
-                        line = payload.toString('utf8').split('\n')[0].split(' ');
-                    }
-
-                    Code.expect(line[0]).to.equal(this.payload.event);
-                    Code.expect(line[line.length-1]).to.equal(this.payload.timestamp);
-                }
-            },
-            {
-                payload: {
-                    event: 'error',
-                    timestamp: Date.now(),
-                    url: 'http://localhost:8000/foo',
-                    method: 'GET',
-                    message: 'Error',
-                    stack: 'stack',
-                    pid: 1234
-                },
-                validate: function (payload) {
-                    let line, eventName, columns, timestamp;
-                    if (payload && payload[0]) {
-                        line = payload.toString('utf8').split('\n')[0].split(' ');
-                        eventName = line[0];
-                        columns = line[1];
-                        timestamp = line[2];
-                    }
-
-                    Code.expect(line.length).to.not.equal(1);
-                    Code.expect(eventName).to.equal(this.payload.event);
-                }
-            }
-        ];
-        const requests = 0;
-        const server = internals.createServer(function handler(req, reply) {
-            reply('ok');
-
-            const event = events[requests];
-            Code.expect(req.payload).to.exist;
-            event.validate(req.payload);
-
-            requests += 1;
-            if (requests === 2) {
-                done();
-            }
-        });
-
-        server.start(() => {
-            const reporter = new GoodInflux(server.info.uri, {
-                threshold: 0,
-                username: 'foo',
-                password: 'bar',
-                events: {
-                    request: '*',
-                    ops: '*',
-                    log: '*',
-                    error: '*'
-                },
-                precision: 'n' // nanoseconds
             });
 
             stream.pipe(reporter);
